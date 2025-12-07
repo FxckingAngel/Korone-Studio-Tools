@@ -86,12 +86,9 @@ local function makeButton(emoji, tooltip, order, callback)
 end
 
 makeButton("🗂", "Explorer", 1, function()
-	if _G.KS_Explorer and _G.KS_Explorer.Toggle then
-		_G.KS_Explorer.Toggle()
-	else
-		warn("[KoroneStudio] Explorer module not loaded")
+	if KS_Explorer and Explorer.Toggle then
+		KS_Explorer.Toggle()
 	end
-
 end)
 
 makeButton("✏️", "Editor (current selection)", 2, function()
