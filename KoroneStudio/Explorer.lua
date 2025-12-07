@@ -2253,5 +2253,23 @@ return search]==]
 		end
 	end
 
+	-- Korone Studio bridge: allow external hub button to toggle Dex Explorer
+	_G.KS_Explorer = _G.KS_Explorer or {}
+
+	function _G.KS_Explorer.Toggle()
+		local win = Explorer.Window
+		if not win then
+			warn("[KoroneStudio] Explorer window not ready")
+			return
+		end
+
+		if win.Closed then
+			-- Show docked on the left, similar to Dex default
+			win:Show({Align = "left"})
+		else
+			win:Close()
+		end
+	end
+
 	return Explorer
 end
