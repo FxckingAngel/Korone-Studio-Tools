@@ -2255,3 +2255,16 @@ return search]==]
 
 	return Explorer
 end
+-- ✅ HARD BRIDGE FOR HUB BUTTON (DO NOT REMOVE)
+_G.KS_Explorer = Explorer
+
+function _G.KS_Explorer.Toggle()
+	if Explorer.Gui then
+		Explorer.Gui.Enabled = not Explorer.Gui.Enabled
+	else
+		if Explorer.Init then
+			Explorer.Init()
+		end
+	end
+end
+
