@@ -2252,9 +2252,6 @@ return search]==]
 			end
 		end
 	end
-
-	return Explorer
-end
 -- ✅ HARD BRIDGE FOR HUB BUTTON (DO NOT REMOVE)
 _G.KS_Explorer = Explorer
 
@@ -2266,5 +2263,8 @@ function _G.KS_Explorer.Toggle()
 			Explorer.Init()
 		end
 	end
+end
+
+	return Explorer
 end
 
