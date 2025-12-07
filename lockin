@@ -14134,3 +14134,392 @@ pcall(function()
     end
 end)
 
+
+
+--// =====================================================
+--// KORONE STUDIO TOOLS — MAIN HUB + FULL REBRAND
+--// =====================================================
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
+local CoreGui = game:GetService("CoreGui")
+
+---------------------------------------------------------------------
+--  SOFT-HIDE ORIGINAL INFINITE YIELD GUIS (REBRAND)
+---------------------------------------------------------------------
+
+pcall(function()
+	for _, gui in ipairs(CoreGui:GetChildren()) do
+		if gui:IsA("ScreenGui") then
+			local n = string.lower(gui.Name)
+			if (string.find(n, "infinite") or string.find(n, "yield") or string.find(n, "iy_"))
+				and gui.Name ~= "KoroneStudioHub"
+				and gui.Name ~= "IY_ModernEditor"
+			then
+				gui.Enabled = false
+			end
+		end
+	end
+end)
+
+---------------------------------------------------------------------
+--  COMMAND RESOLVER — FIND DEX/EXPLORER + RSPY COMMANDS
+---------------------------------------------------------------------
+
+local function findCommandByNames(possible)
+	if not Commands then return nil end
+
+	for _, cmd in ipairs(Commands) do
+		local names = cmd.Names or cmd.Aliases or cmd.Name
+		if typeof(names) == "table" then
+			for _, n in pairs(names) do
+				if typeof(n) == "string" and possible[string.lower(n)] then
+					return cmd
+				end
+			end
+		elseif typeof(names) == "string" then
+			if possible[string.lower(names)] then
+				return cmd
+			end
+		end
+	end
+end
+
+local DexCommand = findCommandByNames({
+	dex = true,
+	explorer = true,
+	["dex explorer"] = true,
+})
+
+local RSpyCommand = findCommandByNames({
+	rspy = true,
+	remotespy = true,
+	["remote spy"] = true,
+})
+
+local function runCommand(cmd, rawName)
+	if not cmd then
+		warn("[KoroneStudio] Command not found:", rawName)
+		return
+	end
+
+	local fn = cmd.Function or cmd.Run or cmd.Callback
+	if typeof(fn) ~= "function" then
+		warn("[KoroneStudio] Command has no runnable function:", rawName)
+		return
+	end
+
+	local ok, err = pcall(function()
+		-- Most IY commands use (args, speaker)
+		fn({}, LocalPlayer)
+	end)
+	if not ok then
+		warn("[KoroneStudio] Error running command", rawName, ":", err)
+	end
+end
+
+---------------------------------------------------------------------
+--  KORONE STUDIO MAIN HUB UI
+---------------------------------------------------------------------
+
+local function createKoroneStudioHub()
+	if CoreGui:FindFirstChild("KoroneStudioHub") then
+		return CoreGui.KoroneStudioHub
+	end
+
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "KoroneStudioHub"
+	gui.ResetOnSpawn = false
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.Parent = CoreGui
+
+	local main = Instance.new("Frame")
+	main.Name = "Main"
+	main.AnchorPoint = Vector2.new(0, 0.5)
+	main.Position = UDim2.new(0, 16, 0.5, 0)
+	main.Size = UDim2.new(0, 260, 0, 180)
+	main.BackgroundColor3 = Color3.fromRGB(18, 18, 20)
+	main.BorderSizePixel = 0
+	main.Parent = gui
+
+	local mainCorner = Instance.new("UICorner")
+	mainCorner.CornerRadius = UDim.new(0, 12)
+	mainCorner.Parent = main
+
+	local shadow = Instance.new("ImageLabel")
+	shadow.Name = "Shadow"
+	shadow.BackgroundTransparency = 1
+	shadow.Image = "rbxassetid://5028857084"
+	shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+	shadow.ImageTransparency = 0.4
+	shadow.ScaleType = Enum.ScaleType.Slice
+	shadow.SliceCenter = Rect.new(24, 24, 276, 276)
+	shadow.Size = UDim2.new(1, 24, 1, 24)
+	shadow.Position = UDim2.new(0, -12, 0, -12)
+	shadow.ZIndex = 0
+	shadow.Parent = main
+
+	local top = Instance.new("Frame")
+	top.Name = "TopBar"
+	top.Size = UDim2.new(1, 0, 0, 32)
+	top.BackgroundColor3 = Color3.fromRGB(26, 26, 30)
+	top.BorderSizePixel = 0
+	top.Parent = main
+
+	local topCorner = Instance.new("UICorner")
+	topCorner.CornerRadius = UDim.new(0, 12)
+	topCorner.Parent = top
+
+	local title = Instance.new("TextLabel")
+	title.Name = "Title"
+	title.BackgroundTransparency = 1
+	title.Size = UDim2.new(1, -64, 1, 0)
+	title.Position = UDim2.new(0, 12, 0, 0)
+	title.Font = Enum.Font.SourceSansSemibold
+	title.TextSize = 18
+	title.TextXAlignment = Enum.TextXAlignment.Left
+	title.TextColor3 = Color3.new(1, 1, 1)
+	title.Text = "Korone Studio Tools"
+	title.Parent = top
+
+	local mini = Instance.new("TextButton")
+	mini.Name = "Minimize"
+	mini.Size = UDim2.new(0, 24, 0, 24)
+	mini.Position = UDim2.new(1, -60, 0.5, -12)
+	mini.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+	mini.BorderSizePixel = 0
+	mini.Font = Enum.Font.SourceSansBold
+	mini.Text = "-"
+	mini.TextSize = 18
+	mini.TextColor3 = Color3.new(1, 1, 1)
+	mini.Parent = top
+	local miniCorner = Instance.new("UICorner"); miniCorner.CornerRadius = UDim.new(0, 6); miniCorner.Parent = mini
+
+	local close = Instance.new("TextButton")
+	close.Name = "Close"
+	close.Size = UDim2.new(0, 24, 0, 24)
+	close.Position = UDim2.new(1, -30, 0.5, -12)
+	close.BackgroundColor3 = Color3.fromRGB(70, 35, 35)
+	close.BorderSizePixel = 0
+	close.Font = Enum.Font.SourceSansBold
+	close.Text = "X"
+	close.TextSize = 16
+	close.TextColor3 = Color3.new(1, 1, 1)
+	close.Parent = top
+	local closeCorner = Instance.new("UICorner"); closeCorner.CornerRadius = UDim.new(0, 6); closeCorner.Parent = close
+
+	local content = Instance.new("Frame")
+	content.Name = "Content"
+	content.Position = UDim2.new(0, 0, 0, 32)
+	content.Size = UDim2.new(1, 0, 1, -32)
+	content.BackgroundTransparency = 1
+	content.Parent = main
+
+	local layout = Instance.new("UIListLayout")
+	layout.Padding = UDim.new(0, 6)
+	layout.FillDirection = Enum.FillDirection.Vertical
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	layout.VerticalAlignment = Enum.VerticalAlignment.Top
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Parent = content
+
+	local padding = Instance.new("UIPadding")
+	padding.PaddingTop = UDim.new(0, 10)
+	padding.PaddingBottom = UDim.new(0, 10)
+	padding.PaddingLeft = UDim.new(0, 10)
+	padding.PaddingRight = UDim.new(0, 10)
+	padding.Parent = content
+
+	local function makeButton(text, subtext, color)
+		local btn = Instance.new("TextButton")
+		btn.Name = text:gsub("%s+", "") .. "Button"
+		btn.Size = UDim2.new(1, 0, 0, 40)
+		btn.BackgroundColor3 = color
+		btn.AutoButtonColor = true
+		btn.BorderSizePixel = 0
+		btn.Text = ""
+		btn.Parent = content
+
+		local btnCorner = Instance.new("UICorner")
+		btnCorner.CornerRadius = UDim.new(0, 8)
+		btnCorner.Parent = btn
+
+		local label = Instance.new("TextLabel")
+		label.BackgroundTransparency = 1
+		label.Size = UDim2.new(1, -8, 0, 22)
+		label.Position = UDim2.new(0, 8, 0, 2)
+		label.Font = Enum.Font.SourceSansSemibold
+		label.TextSize = 17
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		label.TextColor3 = Color3.new(1, 1, 1)
+		label.Text = text
+		label.Parent = btn
+
+		local sub = Instance.new("TextLabel")
+		sub.BackgroundTransparency = 1
+		sub.Size = UDim2.new(1, -8, 0, 16)
+		sub.Position = UDim2.new(0, 8, 0, 22)
+		sub.Font = Enum.Font.SourceSans
+		sub.TextSize = 13
+		sub.TextXAlignment = Enum.TextXAlignment.Left
+		sub.TextColor3 = Color3.fromRGB(230, 230, 230)
+		sub.TextTransparency = 0.1
+		sub.Text = subtext
+		sub.Parent = btn
+
+		return btn
+	end
+
+	local explorerBtn = makeButton("Explorer", "Open Dex/Explorer with one click", Color3.fromRGB(56, 102, 65))
+	local rspyBtn = makeButton("Remote Spy", "Open remote event spy / logs", Color3.fromRGB(70, 64, 120))
+	local editorBtn = makeButton("Editor", "Open Korone's script/property editor", Color3.fromRGB(59, 89, 152))
+
+	-----------------------------------------------------------------
+	-- Draggable hub
+	-----------------------------------------------------------------
+	local dragging = false
+	local dragStart, startPos
+	local UIS = game:GetService("UserInputService")
+
+	top.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = main.Position
+		end
+	end)
+
+	top.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = false
+		end
+	end)
+
+	UIS.InputChanged:Connect(function(input)
+		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+			local delta = input.Position - dragStart
+			main.Position = UDim2.new(
+				startPos.X.Scale,
+				startPos.X.Offset + delta.X,
+				startPos.Y.Scale,
+				startPos.Y.Offset + delta.Y
+			)
+		end
+	end)
+
+	-----------------------------------------------------------------
+	-- Button behavior
+	-----------------------------------------------------------------
+
+	explorerBtn.MouseButton1Click:Connect(function()
+		if DexCommand then
+			runCommand(DexCommand, "dex/explorer")
+		else
+			warn("[KoroneStudio] Dex/Explorer command not found.")
+		end
+	end)
+
+	rspyBtn.MouseButton1Click:Connect(function()
+		if RSpyCommand then
+			runCommand(RSpyCommand, "rspy")
+		else
+			warn("[KoroneStudio] RemoteSpy command not found.")
+		end
+	end)
+
+	editorBtn.MouseButton1Click:Connect(function()
+		-- Try to open editor for LocalPlayer by default (for props tab)
+		if _G.IY_Editor and _G.IY_Editor.OpenForInstance then
+			local inst = LocalPlayer
+			_G.IY_Editor.OpenForInstance(inst)
+		else
+			warn("[KoroneStudio] IY_Editor not available.")
+		end
+	end)
+
+	mini.MouseButton1Click:Connect(function()
+		main.Visible = not main.Visible
+	end)
+
+	close.MouseButton1Click:Connect(function()
+		gui.Enabled = false
+	end)
+
+	return gui
+end
+
+-- create hub on load
+local hub = createKoroneStudioHub()
+_G.KoroneStudioHub = hub
+
+-- quick global helper to re-open hub if needed
+function _G.OpenKoroneStudio()
+	if hub then
+		hub.Enabled = true
+	end
+end
+
+
+
+--// =====================================================
+--// HARD STRIP — ACTUALLY REMOVE ALL OTHER COMMANDS & GUIS
+--// =====================================================
+
+pcall(function()
+    -- Completely rebuild Commands table to only keep Dex/Explorer/RSpy entries
+    if Commands and typeof(Commands) == "table" then
+        local allowedNames = {
+            dex = true,
+            explorer = true,
+            ["dex explorer"] = true,
+            rspy = true,
+            remotespy = true,
+            ["remote spy"] = true,
+        }
+
+        local newCommands = {}
+
+        local function isAllowedCmd(cmd)
+            local names = cmd.Names or cmd.Aliases or cmd.Name
+            if typeof(names) == "table" then
+                for _, n in pairs(names) do
+                    if typeof(n) == "string" and allowedNames[string.lower(n)] then
+                        return true
+                    end
+                end
+            elseif typeof(names) == "string" then
+                if allowedNames[string.lower(names)] then
+                    return true
+                end
+            end
+            return false
+        end
+
+        for _, cmd in ipairs(Commands) do
+            if isAllowedCmd(cmd) then
+                table.insert(newCommands, cmd)
+            end
+        end
+
+        Commands = newCommands
+        _G.Commands = newCommands
+        print("[KoroneStudio] Hard-stripped commands: only Dex/Explorer + RSpy remain.")
+    end
+
+    -- Destroy all old Infinite Yield GUIs entirely (not just hide)
+    local CoreGui = game:GetService("CoreGui")
+    for _, gui in ipairs(CoreGui:GetChildren()) do
+        if gui:IsA("ScreenGui") then
+            local n = string.lower(gui.Name)
+            local looksLikeIY =
+                string.find(n, "infinite", 1, true)
+                or string.find(n, "yield", 1, true)
+                or string.find(n, "iy_", 1, true)
+
+            if looksLikeIY and gui.Name ~= "KoroneStudioHub" and gui.Name ~= "IY_ModernEditor" then
+                gui:Destroy()
+            end
+        end
+    end
+end)
+
