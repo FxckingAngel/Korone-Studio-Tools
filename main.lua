@@ -1009,96 +1009,100 @@ Main = (function()
 		return Main.DepsVersionData and Main.ClientVersion == Main.DepsVersionData[1]
 	end
 	
-	Main.Init = function()
-		Main.Elevated = pcall(function() local a = game:GetService("CoreGui"):GetFullName() end)
-		Main.InitEnv()
-		Main.LoadSettings()
-		Main.SetupFilesystem()
-		
-		-- Load Lib
-		local intro = Main.CreateIntro("Initializing Library")
-		Lib = Main.LoadModule("Lib")
-		Lib.FastWait()
-		
-		-- Init other stuff
-		--Main.IncompatibleTest()
-		
-		-- Init icons
-		Main.MiscIcons = Lib.IconMap.new("rbxassetid://6511490623",256,256,16,16)
-		Main.MiscIcons:SetDict({
-			Reference = 0,             Cut = 1,                         Cut_Disabled = 2,      Copy = 3,               Copy_Disabled = 4,    Paste = 5,                Paste_Disabled = 6,
-			Delete = 7,                Delete_Disabled = 8,             Group = 9,             Group_Disabled = 10,    Ungroup = 11,         Ungroup_Disabled = 12,    TeleportTo = 13,
-			Rename = 14,               JumpToParent = 15,               ExploreData = 16,      Save = 17,              CallFunction = 18,    CallRemote = 19,          Undo = 20,
-			Undo_Disabled = 21,        Redo = 22,                       Redo_Disabled = 23,    Expand_Over = 24,       Expand = 25,          Collapse_Over = 26,       Collapse = 27,
-			SelectChildren = 28,       SelectChildren_Disabled = 29,    InsertObject = 30,     ViewScript = 31,        AddStar = 32,         RemoveStar = 33,          Script_Disabled = 34,
-			LocalScript_Disabled = 35, Play = 36,                       Pause = 37,            Rename_Disabled = 38
-		})
-		Main.LargeIcons = Lib.IconMap.new("rbxassetid://6579106223",256,256,32,32)
-		Main.LargeIcons:SetDict({
-			Explorer = 0, Properties = 1, Script_Viewer = 2,
-		})
-		
-		-- Fetch version if needed
-		intro.SetProgress("Fetching Roblox Version",0.2)
-		if Main.Elevated then
-			local fileVer = Lib.ReadFile("dex/deps_version.dat")
-			Main.ClientVersion = Version()
-			if fileVer then
-				Main.DepsVersionData = string.split(fileVer,"\n")
-				if Main.LocalDepsUpToDate() then
-					Main.RobloxVersion = Main.DepsVersionData[2]
-				end
-			end
-			Main.RobloxVersion = Main.RobloxVersion or game:HttpGet("http://setup.roblox.com/versionQTStudio")
-		end
-		
-		-- Fetch external deps
-		intro.SetProgress("Fetching API",0.35)
-		API = Main.FetchAPI()
-		Lib.FastWait()
-		intro.SetProgress("Fetching RMD",0.5)
-		RMD = Main.FetchRMD()
-		Lib.FastWait()
-		
-		-- Save external deps locally if needed
-		if Main.Elevated and env.writefile and not Main.LocalDepsUpToDate() then
-			env.writefile("dex/deps_version.dat",Main.ClientVersion.."\n"..Main.RobloxVersion)
-			env.writefile("dex/rbx_api.dat",Main.RawAPI)
-			env.writefile("dex/rbx_rmd.dat",Main.RawRMD)
-		end
-		
-		-- Load other modules
-		intro.SetProgress("Loading Modules",0.75)
-		Main.AppControls.Lib.InitDeps(Main.GetInitDeps()) -- Missing deps now available
-		Main.LoadModules()
-		Lib.FastWait()
-		
-		-- Init other modules
-		intro.SetProgress("Initializing Modules",0.9)
-		Explorer.Init()
-		Properties.Init()
-		ScriptViewer.Init()
-		Lib.FastWait()
-		
-		-- Done
-		intro.SetProgress("Complete",1)
-		coroutine.wrap(function()
-			Lib.FastWait(1.25)
-			intro.Close()
-		end)()
-		
-		-- Init window system, create main menu, show explorer and properties
-		Lib.Window.Init()
-		Main.CreateMainGui()
-		Explorer.Window:Show({Align = "right", Pos = 1, Size = 0.5, Silent = true})
-		Properties.Window:Show({Align = "right", Pos = 2, Size = 0.5, Silent = true})
-		Lib.DeferFunc(function() Lib.Window.ToggleSide("right") end)
-	end
-	
-	return Main
-end)()
+	-- In main.lua, fix the Init function:
+
+Main.Init = function()
+    Main.Elevated = pcall(function() local a = game:GetService("CoreGui"):GetFullName() end)
+    Main.InitEnv()
+    Main.LoadSettings()
+    Main.SetupFilesystem()
+    
+    -- Load Lib
+    local intro = Main.CreateIntro("Initializing Library")
+    Lib = Main.LoadModule("Lib")
+    Lib.FastWait()
+    
+    -- Init other stuff
+    --Main.IncompatibleTest()
+    
+    -- Init icons
+    Main.MiscIcons = Lib.IconMap.new("rbxassetid://6511490623",256,256,16,16)
+    Main.MiscIcons:SetDict({
+        Reference = 0,             Cut = 1,                         Cut_Disabled = 2,      Copy = 3,               Copy_Disabled = 4,    Paste = 5,                Paste_Disabled = 6,
+        Delete = 7,                Delete_Disabled = 8,             Group = 9,             Group_Disabled = 10,    Ungroup = 11,         Ungroup_Disabled = 12,    TeleportTo = 13,
+        Rename = 14,               JumpToParent = 15,               ExploreData = 16,      Save = 17,              CallFunction = 18,    CallRemote = 19,          Undo = 20,
+        Undo_Disabled = 21,        Redo = 22,                       Redo_Disabled = 23,    Expand_Over = 24,       Expand = 25,          Collapse_Over = 26,       Collapse = 27,
+        SelectChildren = 28,       SelectChildren_Disabled = 29,    InsertObject = 30,     ViewScript = 31,        AddStar = 32,         RemoveStar = 33,          Script_Disabled = 34,
+        LocalScript_Disabled = 35, Play = 36,                       Pause = 37,            Rename_Disabled = 38
+    })
+    Main.LargeIcons = Lib.IconMap.new("rbxassetid://6579106223",256,256,32,32)
+    Main.LargeIcons:SetDict({
+        Explorer = 0, Properties = 1, Script_Viewer = 2,
+    })
+    
+    -- Fetch version if needed
+    intro.SetProgress("Fetching Roblox Version",0.2)
+    if Main.Elevated then
+        local fileVer = Lib.ReadFile("dex/deps_version.dat")
+        Main.ClientVersion = Version()
+        if fileVer then
+            Main.DepsVersionData = string.split(fileVer,"\n")
+            if Main.LocalDepsUpToDate() then
+                Main.RobloxVersion = Main.DepsVersionData[2]
+            end
+        end
+        Main.RobloxVersion = Main.RobloxVersion or game:HttpGet("http://setup.roblox.com/versionQTStudio")
+    end
+    
+    -- Fetch external deps
+    intro.SetProgress("Fetching API",0.35)
+    API = Main.FetchAPI()
+    Lib.FastWait()
+    intro.SetProgress("Fetching RMD",0.5)
+    RMD = Main.FetchRMD()
+    Lib.FastWait()
+    
+    -- Save external deps locally if needed
+    if Main.Elevated and env.writefile and not Main.LocalDepsUpToDate() then
+        env.writefile("dex/deps_version.dat",Main.ClientVersion.."\n"..Main.RobloxVersion)
+        env.writefile("dex/rbx_api.dat",Main.RawAPI)
+        env.writefile("dex/rbx_rmd.dat",Main.RawRMD)
+    end
+    
+    -- Load other modules
+    intro.SetProgress("Loading Modules",0.75)
+    Main.AppControls.Lib.InitDeps(Main.GetInitDeps()) -- Missing deps now available
+    Main.LoadModules()
+    Lib.FastWait()
+    
+    -- INIT WINDOW SYSTEM BEFORE MODULE INITIALIZATION
+    intro.SetProgress("Initializing Window System",0.8)
+    Lib.Window.Init()
+    Lib.FastWait()
+    
+    -- Init other modules (now Window.Init has been called)
+    intro.SetProgress("Initializing Modules",0.9)
+    Explorer.Init()
+    Properties.Init()
+    ScriptViewer.Init()
+    Lib.FastWait()
+    
+    -- Done
+    intro.SetProgress("Complete",1)
+    coroutine.wrap(function()
+        Lib.FastWait(1.25)
+        intro.Close()
+    end)()
+    
+    -- Create main menu, show explorer and properties
+    Main.CreateMainGui()
+    Explorer.Window:Show({Align = "right", Pos = 1, Size = 0.5, Silent = true})
+    Properties.Window:Show({Align = "right", Pos = 2, Size = 0.5, Silent = true})
+    Lib.DeferFunc(function() Lib.Window.ToggleSide("right") end)
+end
 
 -- Start
 Main.Init()
+
 
 --for i,v in pairs(Main.MissingEnv) do print(i,v) end
