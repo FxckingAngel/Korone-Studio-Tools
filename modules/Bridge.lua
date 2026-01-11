@@ -28,6 +28,7 @@ local function main()
 	local remotes = {}
 	local pendingRequests = {}
 	local requestId = 0
+	local outputConnections = {}
 	
 	Bridge.CreateRemote = function(name,remoteType)
 		if remotes[name] then return remotes[name] end
@@ -96,13 +97,16 @@ local function main()
 		local output = {}
 		local con
 		
-		con = remote.OnClientEvent:Connect(function(message,level)
-			output[#output+1] = {
-				message = message,
-				level = level or "log",
-				timestamp = tick()
-			}
-		end)
+		-- Handle OnClientEvent properly
+		if remote:IsA("RemoteEvent") then
+			con = remote.OnClientEvent:Connect(function(message,level)
+				output[#output+1] = {
+					message = message,
+					level = level or "log",
+					timestamp = tick()
+				}
+			end)
+		end
 		
 		return {
 			GetMessages = function(self,levels)
@@ -115,18 +119,49 @@ local function main()
 				return result
 			end,
 			Clear = function(self) table.clear(output) end,
-			Disconnect = function(self) con:Disconnect() end
+			Disconnect = function(self) 
+				if con then con:Disconnect() end
+			end
 		}
 	end
 	
 	Bridge.ListPlayers = function()
 		local s,players = Bridge.GetServerData("players")
-		return s and players or {}
+		if s and players then
+			return players
+		end
+		return {}
 	end
 	
 	Bridge.GetPlayerData = function(userId)
 		local s,data = Bridge.GetServerData("playerData",userId)
-		return s and data or nil
+		if s and data then
+			return data
+		end
+		return nil
+	end
+	
+	Bridge.GetPlayerCharacter = function(userId)
+		local s,charData = Bridge.GetServerData("characterData",userId)
+		if s and charData then
+			return charData
+		end
+		return nil
+	end
+	
+	Bridge.GetHumanoidDescription = function(userId)
+		local s,descData = Bridge.GetServerData("humanoidDescription",userId)
+		if s and descData then
+			-- Reconstruct HumanoidDescription from data
+			local desc = Instance.new("HumanoidDescription")
+			for key,val in pairs(descData) do
+				pcall(function()
+					desc[key] = val
+				end)
+			end
+			return desc
+		end
+		return nil
 	end
 	
 	Bridge.KickPlayer = function(userId,reason)
@@ -139,11 +174,22 @@ local function main()
 	
 	Bridge.GetGameStats = function()
 		local s,stats = Bridge.GetServerData("gameStats")
-		return s and stats or nil
+		if s and stats then
+			return stats
+		end
+		return nil
 	end
 	
 	Bridge.RestartServer = function()
 		Bridge.SendCommand("restartServer")
+	end
+	
+	Bridge.TeleportPlayer = function(userId,position)
+		Bridge.SendCommand("teleportPlayer",userId,position)
+	end
+	
+	Bridge.SetPlayerData = function(userId,key,value)
+		Bridge.SendCommand("setPlayerData",userId,key,value)
 	end
 	
 	return Bridge
