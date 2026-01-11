@@ -1918,82 +1918,103 @@ local function main()
 			updateWindows()
 		end
 
-		static.Init = function()
-			displayOrderStart = Main.DisplayOrders.Window
-			sideDisplayOrder = Main.DisplayOrders.SideWindow
+		-- Replace the Lib.Window.Init() static function in modules/Lib.lua with this fixed version
+static.Init = function()
+	displayOrderStart = Main.DisplayOrders.Window
+	sideDisplayOrder = Main.DisplayOrders.SideWindow
 
-			sidesGui = Instance.new("ScreenGui")
-			local leftFrame = create({
-				{1,"Frame",{Active=true,Name="LeftSide",BackgroundColor3=Color3.new(0.17647059261799,0.17647059261799,0.17647059261799),BorderSizePixel=0,}},
-				{2,"TextButton",{AutoButtonColor=false,BackgroundColor3=Color3.new(0.2549019753933,0.2549019753933,0.2549019753933),BorderSizePixel=0,Font=3,Name="Resizer",Parent={1},Size=UDim2.new(0,5,1,0),Text="",TextColor3=Color3.new(0,0,0),TextSize=14,}},
-				{3,"Frame",{BackgroundColor3=Color3.new(0.14117647707462,0.14117647707462,0.14117647707462),BorderSizePixel=0,Name="Line",Parent={2},Position=UDim2.new(0,0,0,0),Size=UDim2.new(0,1,1,0),}},
-				{4,"TextButton",{AutoButtonColor=false,BackgroundColor3=Color3.new(0.2549019753933,0.2549019753933,0.2549019753933),BorderSizePixel=0,Font=3,Name="WindowResizer",Parent={1},Position=UDim2.new(1,-300,0,0),Size=UDim2.new(1,0,0,4),Text="",TextColor3=Color3.new(0,0,0),TextSize=14,}},
-				{5,"Frame",{BackgroundColor3=Color3.new(0.14117647707462,0.14117647707462,0.14117647707462),BorderSizePixel=0,Name="Line",Parent={4},Size=UDim2.new(1,0,0,1),}},
-			})
-			leftSide.Frame = leftFrame
-			leftFrame.Position = UDim2.new(0,-leftSide.Width-10,0,0)
-			leftSide.WindowResizer = leftFrame.WindowResizer
-			leftFrame.WindowResizer.Parent = nil
-			leftFrame.Parent = sidesGui
+	sidesGui = Instance.new("ScreenGui")
+	
+	-- Add error handling and safety checks
+	if not sidesGui then
+		error("Failed to create ScreenGui for sides")
+		return
+	end
+	
+	local leftFrame = create({
+		{1,"Frame",{Active=true,Name="LeftSide",BackgroundColor3=Color3.new(0.17647059261799,0.17647059261799,0.17647059261799),BorderSizePixel=0,}},
+		{2,"TextButton",{AutoButtonColor=false,BackgroundColor3=Color3.new(0.2549019753933,0.2549019753933,0.2549019753933),BorderSizePixel=0,Font=3,Name="Resizer",Parent={1},Size=UDim2.new(0,5,1,0),Text="",TextColor3=Color3.new(0,0,0),TextSize=14,}},
+		{3,"Frame",{BackgroundColor3=Color3.new(0.14117647707462,0.14117647707462,0.14117647707462),BorderSizePixel=0,Name="Line",Parent={2},Position=UDim2.new(0,0,0,0),Size=UDim2.new(0,1,1,0),}},
+		{4,"TextButton",{AutoButtonColor=false,BackgroundColor3=Color3.new(0.2549019753933,0.2549019753933,0.2549019753933),BorderSizePixel=0,Font=3,Name="WindowResizer",Parent={1},Position=UDim2.new(1,-300,0,0),Size=UDim2.new(1,0,0,4),Text="",TextColor3=Color3.new(0,0,0),TextSize=14,}},
+		{5,"Frame",{BackgroundColor3=Color3.new(0.14117647707462,0.14117647707462,0.14117647707462),BorderSizePixel=0,Name="Line",Parent={4},Size=UDim2.new(1,0,0,1),}},
+	})
+	
+	if not leftFrame then
+		error("Failed to create left frame")
+		return
+	end
+	
+	leftSide.Frame = leftFrame
+	leftFrame.Position = UDim2.new(0,-leftSide.Width-10,0,0)
+	leftSide.WindowResizer = leftFrame.WindowResizer
+	leftFrame.WindowResizer.Parent = nil
+	leftFrame.Parent = sidesGui
 
-			local rightFrame = create({
-				{1,"Frame",{Active=true,Name="RightSide",BackgroundColor3=Color3.new(0.17647059261799,0.17647059261799,0.17647059261799),BorderSizePixel=0,}},
-				{2,"TextButton",{AutoButtonColor=false,BackgroundColor3=Color3.new(0.2549019753933,0.2549019753933,0.2549019753933),BorderSizePixel=0,Font=3,Name="Resizer",Parent={1},Size=UDim2.new(0,5,1,0),Text="",TextColor3=Color3.new(0,0,0),TextSize=14,}},
-				{3,"Frame",{BackgroundColor3=Color3.new(0.14117647707462,0.14117647707462,0.14117647707462),BorderSizePixel=0,Name="Line",Parent={2},Position=UDim2.new(0,4,0,0),Size=UDim2.new(0,1,1,0),}},
-				{4,"TextButton",{AutoButtonColor=false,BackgroundColor3=Color3.new(0.2549019753933,0.2549019753933,0.2549019753933),BorderSizePixel=0,Font=3,Name="WindowResizer",Parent={1},Position=UDim2.new(1,-300,0,0),Size=UDim2.new(1,0,0,4),Text="",TextColor3=Color3.new(0,0,0),TextSize=14,}},
-				{5,"Frame",{BackgroundColor3=Color3.new(0.14117647707462,0.14117647707462,0.14117647707462),BorderSizePixel=0,Name="Line",Parent={4},Size=UDim2.new(1,0,0,1),}},
-			})
-			rightSide.Frame = rightFrame
-			rightFrame.Position = UDim2.new(1,10,0,0)
-			rightSide.WindowResizer = rightFrame.WindowResizer
-			rightFrame.WindowResizer.Parent = nil
-			rightFrame.Parent = sidesGui
+	local rightFrame = create({
+		{1,"Frame",{Active=true,Name="RightSide",BackgroundColor3=Color3.new(0.17647059261799,0.17647059261799,0.17647059261799),BorderSizePixel=0,}},
+		{2,"TextButton",{AutoButtonColor=false,BackgroundColor3=Color3.new(0.2549019753933,0.2549019753933,0.2549019753933),BorderSizePixel=0,Font=3,Name="Resizer",Parent={1},Size=UDim2.new(0,5,1,0),Text="",TextColor3=Color3.new(0,0,0),TextSize=14,}},
+		{3,"Frame",{BackgroundColor3=Color3.new(0.14117647707462,0.14117647707462,0.14117647707462),BorderSizePixel=0,Name="Line",Parent={2},Position=UDim2.new(0,4,0,0),Size=UDim2.new(0,1,1,0),}},
+		{4,"TextButton",{AutoButtonColor=false,BackgroundColor3=Color3.new(0.2549019753933,0.2549019753933,0.2549019753933),BorderSizePixel=0,Font=3,Name="WindowResizer",Parent={1},Position=UDim2.new(1,-300,0,0),Size=UDim2.new(1,0,0,4),Text="",TextColor3=Color3.new(0,0,0),TextSize=14,}},
+		{5,"Frame",{BackgroundColor3=Color3.new(0.14117647707462,0.14117647707462,0.14117647707462),BorderSizePixel=0,Name="Line",Parent={4},Size=UDim2.new(1,0,0,1),}},
+	})
+	
+	if not rightFrame then
+		error("Failed to create right frame")
+		return
+	end
+	
+	rightSide.Frame = rightFrame
+	rightFrame.Position = UDim2.new(1,10,0,0)
+	rightSide.WindowResizer = rightFrame.WindowResizer
+	rightFrame.WindowResizer.Parent = nil
+	rightFrame.Parent = sidesGui
 
-			sideResizerHook(leftFrame.Resizer,"H",leftSide)
-			sideResizerHook(rightFrame.Resizer,"H",rightSide)
+	sideResizerHook(leftFrame.Resizer,"H",leftSide)
+	sideResizerHook(rightFrame.Resizer,"H",rightSide)
 
-			alignIndicator = Instance.new("ScreenGui")
-			alignIndicator.DisplayOrder = Main.DisplayOrders.Core
-			local indicator = Instance.new("Frame",alignIndicator)
-			indicator.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-			indicator.BorderSizePixel = 0
-			indicator.BackgroundTransparency = 0.8
-			indicator.Name = "Indicator"
-			local corner = Instance.new("UICorner",indicator)
-			corner.CornerRadius = UDim.new(0,10)
+	alignIndicator = Instance.new("ScreenGui")
+	alignIndicator.DisplayOrder = Main.DisplayOrders.Core
+	local indicator = Instance.new("Frame",alignIndicator)
+	indicator.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+	indicator.BorderSizePixel = 0
+	indicator.BackgroundTransparency = 0.8
+	indicator.Name = "Indicator"
+	local corner = Instance.new("UICorner",indicator)
+	corner.CornerRadius = UDim.new(0,10)
 
-			local leftToggle = create({{1,"TextButton",{AutoButtonColor=false,BackgroundColor3=Color3.new(0.20392157137394,0.20392157137394,0.20392157137394),BorderColor3=Color3.new(0.14117647707462,0.14117647707462,0.14117647707462),BorderMode=2,Font=10,Name="LeftToggle",Position=UDim2.new(0,0,0,-36),Size=UDim2.new(0,16,0,36),Text="<",TextColor3=Color3.new(1,1,1),TextSize=14,}}})
-			local rightToggle = leftToggle:Clone()
-			rightToggle.Name = "RightToggle"
-			rightToggle.Position = UDim2.new(1,-16,0,-36)
-			Lib.ButtonAnim(leftToggle,{Mode = 2,PressColor = Color3.fromRGB(32,32,32)})
-			Lib.ButtonAnim(rightToggle,{Mode = 2,PressColor = Color3.fromRGB(32,32,32)})
+	local leftToggle = create({{1,"TextButton",{AutoButtonColor=false,BackgroundColor3=Color3.new(0.20392157137394,0.20392157137394,0.20392157137394),BorderColor3=Color3.new(0.14117647707462,0.14117647707462,0.14117647707462),BorderMode=2,Font=10,Name="LeftToggle",Position=UDim2.new(0,0,0,-36),Size=UDim2.new(0,16,0,36),Text="<",TextColor3=Color3.new(1,1,1),TextSize=14,}}})
+	local rightToggle = leftToggle:Clone()
+	rightToggle.Name = "RightToggle"
+	rightToggle.Position = UDim2.new(1,-16,0,-36)
+	
+	Lib.ButtonAnim(leftToggle,{Mode = 2,PressColor = Color3.fromRGB(32,32,32)})
+	Lib.ButtonAnim(rightToggle,{Mode = 2,PressColor = Color3.fromRGB(32,32,32)})
 
-			leftToggle.MouseButton1Click:Connect(function()
-				static.ToggleSide("left")
-			end)
+	leftToggle.MouseButton1Click:Connect(function()
+		static.ToggleSide("left")
+	end)
 
-			rightToggle.MouseButton1Click:Connect(function()
-				static.ToggleSide("right")
-			end)
+	rightToggle.MouseButton1Click:Connect(function()
+		static.ToggleSide("right")
+	end)
 
-			leftToggle.Parent = sidesGui
-			rightToggle.Parent = sidesGui
+	leftToggle.Parent = sidesGui
+	rightToggle.Parent = sidesGui
 
-			sidesGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-				local maxWidth = math.max(300,sidesGui.AbsoluteSize.X-static.FreeWidth)
-				leftSide.Width = math.max(static.MinWidth,math.min(leftSide.Width,maxWidth-rightSide.Width))
-				rightSide.Width = math.max(static.MinWidth,math.min(rightSide.Width,maxWidth-leftSide.Width))
-				for i = 1,#visibleWindows do
-					visibleWindows[i]:MoveInBoundary()
-				end
-				updateWindows(true)
-			end)
-
-			sidesGui.DisplayOrder = sideDisplayOrder - 1
-			Lib.ShowGui(sidesGui)
-			updateSideFrames()
+	sidesGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		local maxWidth = math.max(300,sidesGui.AbsoluteSize.X-static.FreeWidth)
+		leftSide.Width = math.max(static.MinWidth,math.min(leftSide.Width,maxWidth-rightSide.Width))
+		rightSide.Width = math.max(static.MinWidth,math.min(rightSide.Width,maxWidth-leftSide.Width))
+		for i = 1,#visibleWindows do
+			visibleWindows[i]:MoveInBoundary()
 		end
+		updateWindows(true)
+	end)
+
+	sidesGui.DisplayOrder = sideDisplayOrder - 1
+	Lib.ShowGui(sidesGui)
+	updateSideFrames()
+end
 
 		local mt = {__index = funcs}
 		static.new = function()
@@ -5743,4 +5764,5 @@ if gethsfuncs then
 	_G.moduleData = {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
 else
 	return {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
+
 end
