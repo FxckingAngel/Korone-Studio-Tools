@@ -1918,14 +1918,15 @@ local function main()
 			updateWindows()
 		end
 
-		-- Replace the Lib.Window.Init() static function in modules/Lib.lua with this fixed version
+
 static.Init = function()
 	displayOrderStart = Main.DisplayOrders.Window
 	sideDisplayOrder = Main.DisplayOrders.SideWindow
 
 	sidesGui = Instance.new("ScreenGui")
+	sidesGui.DisplayOrder = sideDisplayOrder - 1
+	sidesGui.Name = "SidesGui"
 	
-	-- Add error handling and safety checks
 	if not sidesGui then
 		error("Failed to create ScreenGui for sides")
 		return
@@ -2011,7 +2012,6 @@ static.Init = function()
 		updateWindows(true)
 	end)
 
-	sidesGui.DisplayOrder = sideDisplayOrder - 1
 	Lib.ShowGui(sidesGui)
 	updateSideFrames()
 end
@@ -5766,3 +5766,4 @@ else
 	return {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
 
 end
+
